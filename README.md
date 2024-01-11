@@ -2,6 +2,6 @@
 
 The solutions found by me for the questions on LEETCODE.
 
-Don't copy try to understand the code and try solving it by yourself
+Don't copy, try to understand the code and try solving it by yourself
 
 NGL I hate Leetcode
