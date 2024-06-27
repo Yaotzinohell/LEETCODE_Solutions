@@ -5,4 +5,4 @@ class Solution(object):
         students.sort()
         for i in range(0, len(students)):
             sumesh = sumesh + abs(seats[i]-students[i])
-        return sumes
+        return sumesh
