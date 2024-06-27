@@ -8,7 +8,7 @@ class Solution(object):
             "6" : "mno",
             "7" : "pqrs",
             "8" : "tuv",
-            "9" : "wxyz",
+            "9" : "wz",
         }
         if not digits:
             return []
