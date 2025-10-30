@@ -1,1 +1,5 @@
-print(52%26)
+n = 19
+
+n.split()
+
+print(n.split())
