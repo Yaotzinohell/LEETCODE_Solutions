@@ -4,7 +4,11 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
     branches:
-      - master  # Run only when PR targets master
+      - master
+
+permissions:
+  contents: write
+  pull-requests: write
 
 jobs:
   validate-folders:
@@ -32,27 +36,22 @@ jobs:
             ! -path "*/\.*" \
             -printf "%f\n")
 
-          # Flag to track errors
           has_error=false
 
           for dir in $folders; do
-            # Check if folder matches Leetcode_<number>
             if [[ ! "$dir" =~ ^Leetcode_[0-9]+$ ]]; then
               echo "❌ Invalid folder name: $dir (must be 'Leetcode_<number>')"
               has_error=true
               continue
             fi
 
-            # Inside folder checks
             cd "$dir"
 
-            # Check qn.txt existence
             if [[ ! -f "qn.txt" ]]; then
               echo "❌ Missing qn.txt in $dir"
               has_error=true
             fi
 
-            # Check solution file existence (solution with any extension)
             solution_count=$(ls solution.* 2>/dev/null | wc -l)
             if [[ "$solution_count" -eq 0 ]]; then
               echo "❌ Missing solution file in $dir (should be solution.<ext>)"
@@ -80,9 +79,9 @@ jobs:
 
     steps:
       - name: Auto-merge PR
-        uses: peter-evans/merge-pull-request@v3
+        uses: peter-evans/merge-pull-request@v2
         with:
-          token: ${{ secrets.REPO_PAT }}   # Personal Access Token stored in repo secrets
+          token: ${{ secrets.GITHUB_TOKEN }}
           pull-request-number: ${{ github.event.pull_request.number }}
           merge-method: squash
           commit-title: "Auto-merged PR #${{ github.event.pull_request.number }} (validation passed)"
