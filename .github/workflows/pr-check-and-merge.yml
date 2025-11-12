@@ -78,6 +78,7 @@ jobs:
     if: needs.validate-folders.result == 'success'
 
     steps:
+      - uses: actions/checkout@v4
       - name: Auto-merge PR
         uses: peter-evans/merge-pull-request@v2
         with:
