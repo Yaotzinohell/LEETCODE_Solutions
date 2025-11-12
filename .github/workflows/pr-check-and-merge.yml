@@ -4,7 +4,7 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
     branches:
-      - master  # run when PR targets master
+      - master  # Run only when PR targets master
 
 jobs:
   validate-folders:
@@ -23,8 +23,14 @@ jobs:
           set -e
           echo "🔍 Checking folder format and contents..."
 
-          # Ignore system directories
-          folders=$(find . -maxdepth 1 -type d ! -name ".git" ! -name ".github" -printf "%f\n")
+          # Find all top-level folders excluding system ones (.git, .github, hidden dirs)
+          folders=$(find . -maxdepth 1 -type d \
+            ! -name ".git" \
+            ! -name ".github" \
+            ! -name "." \
+            ! -name ".." \
+            ! -path "*/\.*" \
+            -printf "%f\n")
 
           # Flag to track errors
           has_error=false
