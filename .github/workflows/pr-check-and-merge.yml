@@ -1,0 +1,83 @@
+name: PR Validation & Auto Merge
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches:
+      - master  # run when PR targets master
+
+jobs:
+  validate-folders:
+    name: Validate Folder Structure
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate Leetcode folder format and contents
+        id: validate
+        run: |
+          set -e
+          echo "🔍 Checking folder format and contents..."
+
+          # Ignore system directories
+          folders=$(find . -maxdepth 1 -type d ! -name ".git" ! -name ".github" -printf "%f\n")
+
+          # Flag to track errors
+          has_error=false
+
+          for dir in $folders; do
+            # Check if folder matches Leetcode_<number>
+            if [[ ! "$dir" =~ ^Leetcode_[0-9]+$ ]]; then
+              echo "❌ Invalid folder name: $dir (must be 'Leetcode_<number>')"
+              has_error=true
+              continue
+            fi
+
+            # Inside folder checks
+            cd "$dir"
+
+            # Check qn.txt existence
+            if [[ ! -f "qn.txt" ]]; then
+              echo "❌ Missing qn.txt in $dir"
+              has_error=true
+            fi
+
+            # Check solution file existence (solution with any extension)
+            solution_count=$(ls solution.* 2>/dev/null | wc -l)
+            if [[ "$solution_count" -eq 0 ]]; then
+              echo "❌ Missing solution file in $dir (should be solution.<ext>)"
+              has_error=true
+            elif [[ "$solution_count" -gt 1 ]]; then
+              echo "❌ Multiple solution files found in $dir (only one allowed)"
+              has_error=true
+            fi
+
+            cd ..
+          done
+
+          if [ "$has_error" = true ]; then
+            echo "❌ Validation failed — fix errors above before merging."
+            exit 1
+          fi
+
+          echo "✅ All folder and file checks passed successfully!"
+
+  auto-merge:
+    name: Auto Merge PR (on success)
+    needs: validate-folders
+    runs-on: ubuntu-latest
+    if: needs.validate-folders.result == 'success'
+
+    steps:
+      - name: Auto-merge PR
+        uses: peter-evans/merge-pull-request@v3
+        with:
+          token: ${{ secrets.REPO_PAT }}   # Personal Access Token stored in repo secrets
+          pull-request-number: ${{ github.event.pull_request.number }}
+          merge-method: squash
+          commit-title: "Auto-merged PR #${{ github.event.pull_request.number }} (validation passed)"
+          delete-branch: false
