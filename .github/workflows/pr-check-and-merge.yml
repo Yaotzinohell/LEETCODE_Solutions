@@ -1,4 +1,4 @@
-name: PR Validation & Auto Merge
+name: PR Validation
 
 on:
   pull_request:
@@ -70,19 +70,3 @@ jobs:
           fi
 
           echo "✅ All folder and file checks passed successfully!"
-
-  auto-merge:
-    name: Auto Merge PR (on success)
-    needs: validate-folders
-    runs-on: ubuntu-latest
-    if: needs.validate-folders.result == 'success'
-
-    steps:
-      - name: Auto-merge PR
-        uses: peter-evans/merge-pull-request@v2
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          pull-request-number: ${{ github.event.pull_request.number }}
-          merge-method: squash
-          commit-title: "Auto-merged PR #${{ github.event.pull_request.number }} (validation passed)"
-          delete-branch: false
