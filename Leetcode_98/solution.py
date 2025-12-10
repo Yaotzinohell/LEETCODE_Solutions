@@ -10,7 +10,7 @@ class Solution(object):
         :type root: Optional[TreeNode]
         :rtype: bool
         """
-        def valid(node, low, high):
+        def valid(node, low, high)
             if not node:
                 return True
             if not (low<node.val<high)
