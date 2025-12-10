@@ -5,7 +5,7 @@
 #         self.left = left
 #         self.right = right
 class Solution(object):
-    def isValidBST(self, root):
+    def isValidBST(self, root)
         """
         :type root: Optional[TreeNode]
         :rtype: bool
